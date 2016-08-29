@@ -29,8 +29,29 @@ class Team extends Model
 
     protected function guardAgainstTooManyMembers()
     {
-        if($this->count() >= $this->size){
+        if ($this->count() >= $this->size) {
             throw new \Exception;
         }
+    }
+
+    public function remove($users)
+    {
+        if ($users instanceof User) {
+            return $users->leaveTeam();
+        }
+
+        return $this->removeMany($users);
+    }
+
+    public function removeMany($users)
+    {
+        return $this->members()
+            ->whereIn('id', $users->pluck('id'))
+            ->update(['team_id' => null]);
+    }
+
+    public function restart()
+    {
+        return $this->members()->update(['team_id' => null]);
     }
 }
